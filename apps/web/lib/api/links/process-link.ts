@@ -17,7 +17,6 @@ import {
   isValidUrl,
   log,
   parseDateTime,
-  pluralize,
 } from "@dub/utils";
 import { combineTagIds } from "../tags/combine-tag-ids";
 import { keyChecks, processKey } from "./utils";
@@ -200,20 +199,24 @@ export async function processLink<T extends Record<string, any>>({
     const { allowedHostnames } = DUB_DOMAINS.find((d) => d.slug === domain)!;
     const urlDomain = getDomainWithoutWWW(url) || "";
     const apexDomain = getApexDomain(url);
-    if (
-      key !== "_root" &&
-      allowedHostnames &&
-      !allowedHostnames.includes(urlDomain) &&
-      !allowedHostnames.includes(apexDomain)
-    ) {
-      return {
-        link: payload,
-        error: `Invalid destination URL. You can only create ${domain} short links for URLs with the ${pluralize("domain", allowedHostnames.length)} ${allowedHostnames
-          .map((d) => `"${d}"`)
-          .join(", ")}.`,
-        code: "unprocessable_entity",
-      };
-    }
+
+    console.log(">>>>");
+    console.log(key, allowedHostnames, urlDomain, apexDomain);
+
+    // if (
+    //   key !== "_root" &&
+    //   allowedHostnames &&
+    //   !allowedHostnames.includes(urlDomain) &&
+    //   !allowedHostnames.includes(apexDomain)
+    // ) {
+    //   return {
+    //     link: payload,
+    //     error: `Invalid destination URL. You can only create ${domain} short links for URLs with the ${pluralize("domain", allowedHostnames.length)} ${allowedHostnames
+    //       .map((d) => `"${d}"`)
+    //       .join(", ")}.`,
+    //     code: "unprocessable_entity",
+    //   };
+    // }
 
     if (!skipKeyChecks && key?.includes("/")) {
       // check if the workspace has access to the parent link

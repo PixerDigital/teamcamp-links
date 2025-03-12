@@ -3,8 +3,8 @@ import { tb } from "@/lib/tinybird";
 import { UTM_TAGS_PLURAL_LIST } from "@/lib/zod/schemas/utm";
 import { prismaEdge } from "@dub/prisma/edge";
 import { linkConstructor, punyEncode } from "@dub/utils";
+import { Prisma } from "@prisma/client";
 import { decodeKeyIfCaseSensitive } from "../api/links/case-sensitivity";
-import { conn } from "../planetscale";
 import z from "../zod";
 import { analyticsFilterTB } from "../zod/schemas/analytics";
 import { analyticsResponse } from "../zod/schemas/analytics-response";
@@ -49,6 +49,8 @@ export const getAnalytics = async (params: AnalyticsFilters) => {
       (filter) => !params[filter as keyof AnalyticsFilters],
     )
   ) {
+    let select: Prisma.LinkSelect = { clicks: true, leads: true };
+
     const columns =
       event === "composite"
         ? `clicks, leads, sales, saleAmount`
@@ -56,12 +58,19 @@ export const getAnalytics = async (params: AnalyticsFilters) => {
           ? `sales, saleAmount`
           : `${event}`;
 
-    const response = await conn.execute(
-      `SELECT ${columns} FROM Link WHERE id = ?`,
-      [linkId],
-    );
+    if (event === "composite") {
+      select = { clicks: true, leads: true, sales: true, saleAmount: true };
+    }
+    if (event === "sales") {
+      select = { sales: true, saleAmount: true };
+    }
 
-    return response.rows[0];
+    const data = await prismaEdge.link.findUnique({
+      where: { id: linkId },
+      select,
+    });
+
+    return data;
   }
 
   if (groupBy === "trigger") {

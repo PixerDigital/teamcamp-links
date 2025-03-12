@@ -1,3 +1,4 @@
+import { prismaEdge } from "@dub/prisma/edge";
 import {
   LOCALHOST_GEO_DATA,
   LOCALHOST_IP,
@@ -14,8 +15,6 @@ import {
   getFinalUrlForRecordClick,
   getIdentityHash,
 } from "../middleware/utils";
-import { conn } from "../planetscale";
-import { WorkspaceProps } from "../types";
 import { redis } from "../upstash";
 import { webhookCache } from "../webhook/cache";
 import { sendWebhooks } from "../webhook/qstash";
@@ -138,7 +137,7 @@ export async function recordClick({
 
   const hasWebhooks = webhookIds && webhookIds.length > 0;
 
-  const [, , , , workspaceRows] = await Promise.all([
+  const [, , , , workspace] = await Promise.all([
     fetch(
       `${process.env.TINYBIRD_API_URL}/v0/events?name=dub_click_events&wait=true`,
       {
@@ -157,31 +156,31 @@ export async function recordClick({
 
     // increment the click count for the link (based on their ID)
     // we have to use planetscale connection directly (not prismaEdge) because of connection pooling
-    conn.execute(
-      "UPDATE Link SET clicks = clicks + 1, lastClicked = NOW() WHERE id = ?",
-      [linkId],
-    ),
+    prismaEdge.link.update({
+      where: { id: linkId },
+      data: { clicks: { increment: 1 }, lastClicked: new Date() },
+    }),
+
     // if the link has a destination URL, increment the usage count for the workspace
     // and then we have a cron that will reset it at the start of new billing cycle
+
     url &&
-      conn.execute(
-        "UPDATE Project p JOIN Link l ON p.id = l.projectId SET p.usage = p.usage + 1, p.totalClicks = p.totalClicks + 1 WHERE l.id = ?",
-        [linkId],
-      ),
+      prismaEdge.$executeRaw`
+  UPDATE Project p 
+  JOIN Link l ON p.id = l.projectId 
+  SET p.usage = p.usage + 1, 
+      p.totalClicks = p.totalClicks + 1 
+  WHERE l.id = ${linkId}
+`,
 
     // fetch the workspace usage for the workspace
     workspaceId && hasWebhooks
-      ? conn.execute(
-          "SELECT usage, usageLimit FROM Project WHERE id = ? LIMIT 1",
-          [workspaceId],
-        )
+      ? prismaEdge.project.findUnique({
+          where: { id: workspaceId },
+          select: { usage: true, usageLimit: true },
+        })
       : null,
   ]);
-
-  const workspace =
-    workspaceRows && workspaceRows.rows.length > 0
-      ? (workspaceRows.rows[0] as Pick<WorkspaceProps, "usage" | "usageLimit">)
-      : null;
 
   const hasExceededUsageLimit =
     workspace && workspace.usage >= workspace.usageLimit;
@@ -224,30 +223,32 @@ async function sendLinkClickWebhooks({
     return;
   }
 
-  const link = await conn
-    .execute(
-      `
-    SELECT 
-      l.*,
-      JSON_ARRAYAGG(
-        IF(t.id IS NOT NULL,
-          JSON_OBJECT('tag', JSON_OBJECT('id', t.id, 'name', t.name, 'color', t.color)),
-          NULL
-        )
-      ) as tags
-    FROM Link l
-    LEFT JOIN LinkTag lt ON l.id = lt.linkId
-    LEFT JOIN Tag t ON lt.tagId = t.id
-    WHERE l.id = ?
-    GROUP BY l.id
-  `,
-      [linkId],
-    )
-    .then((res) => {
-      const row = res.rows[0] as any;
-      // Handle case where there are no tags (JSON_ARRAYAGG returns [null])
-      row.tags = row.tags?.[0] === null ? [] : row.tags;
-      return row;
+  const link = await prismaEdge.link
+    .findUnique({
+      where: { id: linkId },
+      include: {
+        tags: {
+          include: {
+            tag: {
+              select: {
+                id: true,
+                name: true,
+                color: true,
+              },
+            },
+          },
+        },
+      },
+    })
+    .then((link) => {
+      if (!link) return null;
+
+      return {
+        ...link,
+        tags: link.tags
+          .map((lt) => (lt.tag ? { tag: lt.tag } : null))
+          .filter((x) => typeof x === "boolean"), // Remove null values if any
+      };
     });
 
   await sendWebhooks({
