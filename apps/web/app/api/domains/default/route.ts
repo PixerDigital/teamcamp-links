@@ -15,17 +15,6 @@ export const GET = withWorkspace(
       where: {
         projectId: workspace.id,
       },
-      select: {
-        dubsh: true,
-        dublink: true,
-        chatgpt: true,
-        sptifi: true,
-        gitnew: true,
-        callink: true,
-        amznid: true,
-        ggllink: true,
-        figpage: true,
-      },
     });
 
     let defaultDomains: string[] = [];
