@@ -128,7 +128,7 @@ export async function checkoutSessionCompleted(event: Stripe.Event) {
         projectId: workspaceId,
       },
       data: {
-        dublink: true,
+        teamcamplink: true,
       },
     }),
   ]);

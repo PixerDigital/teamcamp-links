@@ -62,15 +62,7 @@ export const PATCH = withWorkspace(
         projectId: workspace.id,
       },
       data: {
-        dubsh: defaultDomains.includes("dub.sh"),
-        dublink: defaultDomains.includes("dub.link"),
-        chatgpt: defaultDomains.includes("chatg.pt"),
-        sptifi: defaultDomains.includes("spti.fi"),
-        gitnew: defaultDomains.includes("git.new"),
-        callink: defaultDomains.includes("cal.link"),
-        amznid: defaultDomains.includes("amzn.id"),
-        ggllink: defaultDomains.includes("ggl.link"),
-        figpage: defaultDomains.includes("fig.page"),
+        teamcamplink: defaultDomains.includes("teamcamp.link"),
       },
     });
 
