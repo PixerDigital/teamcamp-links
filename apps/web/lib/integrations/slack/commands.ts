@@ -46,7 +46,7 @@ export const handleSlashCommand = async (req: Request) => {
     where: {
       integrationId: SLACK_INTEGRATION_ID,
       credentials: {
-        path: "$.team.id",
+        path: ["team", "id"],
         equals: data.team_id,
       },
     },
