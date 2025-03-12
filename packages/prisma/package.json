@@ -14,12 +14,16 @@
     "format": "npx prisma format --schema=./schema"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
     "@planetscale/database": "^1.18.0",
+    "@prisma/adapter-neon": "5.18.0",
     "@prisma/adapter-planetscale": "^5.18.0",
-    "@prisma/client": "5.18.0"
+    "@prisma/client": "5.18.0",
+    "ws": "^8.18.1"
   },
   "devDependencies": {
     "@types/node": "18.11.9",
+    "@types/ws": "^8.18.0",
     "prisma": "5.18.0",
     "tsx": "^4.11.0",
     "typescript": "5.2.2"

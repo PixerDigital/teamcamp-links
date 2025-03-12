@@ -1,12 +1,9 @@
-import { conn } from "./connection";
-import { EdgeDomainProps } from "./types";
+import { prismaEdge } from "@dub/prisma/edge";
 
-export const getDomainViaEdge = async (domain: string) => {
-  const { rows } =
-    (await conn.execute<EdgeDomainProps>(
-      "SELECT * FROM Domain WHERE slug = ?",
-      [domain],
-    )) || {};
+export const getDomainViaEdge = async (domainSlug: string) => {
+  const domain = await prismaEdge.domain.findUnique({
+    where: { slug: domainSlug },
+  });
 
-  return rows && Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+  return domain ? domain : null;
 };

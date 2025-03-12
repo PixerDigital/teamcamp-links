@@ -1,9 +1,6 @@
-import { conn } from "./connection";
+import { prismaEdge } from "@dub/prisma/edge";
 
 export const checkIfUserExists = async (userId: string) => {
-  const { rows } =
-    (await conn.execute("SELECT 1 FROM User WHERE id = ? LIMIT 1", [userId])) ||
-    {};
-
-  return rows && Array.isArray(rows) && rows.length > 0;
+  const user = await prismaEdge.user.findUnique({ where: { id: userId } });
+  return !!user;
 };

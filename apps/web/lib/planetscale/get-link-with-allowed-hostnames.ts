@@ -1,21 +1,36 @@
-import { punyEncode } from "@dub/utils";
-import { conn } from "./connection";
+import { prismaEdge } from "@dub/prisma/edge";
 
 export const getLinkWithAllowedHostnames = async (
   domain: string,
   key: string,
 ) => {
-  const { rows } = await conn.execute<{
-    id: string;
-    url: string;
-    projectId: string;
-    folderId: string | null;
-    userId: string;
-    allowedHostnames: string[];
-  }>(
-    "SELECT Link.id, Link.url, projectId, folderId, userId, allowedHostnames FROM Link LEFT JOIN Project ON Link.projectId = Project.id WHERE domain = ? AND `key` = ?",
-    [domain, punyEncode(decodeURIComponent(key))],
-  );
+  const data = await prismaEdge.link.findFirst({
+    where: {
+      domain,
+      key,
+    },
+    select: {
+      id: true,
+      url: true,
+      projectId: true,
+      folderId: true,
+      userId: true,
+      project: {
+        select: {
+          allowedHostnames: true,
+        },
+      },
+    },
+  });
 
-  return rows && Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+  if (!data) {
+    return null;
+  }
+
+  const { project, ...rest } = data;
+  const allowedHostnames = (project?.allowedHostnames as string[]) || [];
+
+  const formatted = { ...rest, allowedHostnames };
+
+  return formatted;
 };

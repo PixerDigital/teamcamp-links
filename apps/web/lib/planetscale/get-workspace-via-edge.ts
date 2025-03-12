@@ -1,12 +1,9 @@
-import { WorkspaceProps } from "../types";
-import { conn } from "./connection";
+import { prismaEdge } from "@dub/prisma/edge";
 
 export const getWorkspaceViaEdge = async (workspaceId: string) => {
-  const { rows } =
-    (await conn.execute<WorkspaceProps>(
-      "SELECT * FROM Project WHERE id = ? LIMIT 1",
-      [workspaceId.replace("ws_", "")],
-    )) || {};
+  const workspace = await prismaEdge.project.findUnique({
+    where: { id: workspaceId.replace("ws_", "") },
+  });
 
-  return rows && Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+  return workspace ? workspace : null;
 };

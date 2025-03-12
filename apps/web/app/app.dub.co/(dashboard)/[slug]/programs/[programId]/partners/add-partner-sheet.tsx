@@ -315,7 +315,7 @@ function AddPartnerSheetContent({ setIsOpen }: AddPartnerSheetProps) {
                     <strong className="font-medium text-neutral-900">
                       From:{" "}
                     </strong>
-                    system@dub.co
+                    no-reply@teamcamp.app
                   </p>
                   <p className="text-sm text-neutral-500">
                     <strong className="font-medium text-neutral-900">

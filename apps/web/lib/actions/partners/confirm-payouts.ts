@@ -183,7 +183,7 @@ export const confirmPayoutsAction = authActionClient
                   sendEmail({
                     subject: "You've got money coming your way!",
                     email: user.email!,
-                    from: "Dub Partners <system@dub.co>",
+                    from: "Dub Partners <no-reply@teamcamp.app>",
                     react: PartnerPayoutConfirmed({
                       email: user.email!,
                       program,

@@ -109,7 +109,7 @@ export async function notifyPartnerSale({
       limiter.schedule(() =>
         sendEmail({
           subject: "You just made a sale via Dub Partners!",
-          from: "Dub Partners <system@dub.co>",
+          from: "Dub Partners <no-reply@teamcamp.app>",
           email: user.email!,
           react: NewSaleAlertPartner({
             email: user.email!,
@@ -123,7 +123,7 @@ export async function notifyPartnerSale({
       limiter.schedule(() =>
         sendEmail({
           subject: `New commission for ${partnerProfile.name}`,
-          from: "Dub Partners <system@dub.co>",
+          from: "Dub Partners <no-reply@teamcamp.app>",
           email: user.email!,
           react: NewSaleAlertProgramOwner({
             ...data,

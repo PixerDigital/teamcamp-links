@@ -33,7 +33,7 @@ export const sendEmailViaResend = async ({
       from ||
       (marketing
         ? "Steven from Dub.co <steven@ship.dub.co>"
-        : "Dub.co <system@dub.co>"),
+        : "Dub.co <no-reply@teamcamp.app>"),
     bcc: bcc,
     replyTo,
     subject,

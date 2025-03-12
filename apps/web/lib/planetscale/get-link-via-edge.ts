@@ -1,10 +1,10 @@
+import { prismaEdge } from "@dub/prisma/edge";
 import { punyEncode } from "@dub/utils";
 import {
   decodeKeyIfCaseSensitive,
   encodeKey,
   isCaseSensitiveDomain,
 } from "../api/links/case-sensitivity";
-import { conn } from "./connection";
 import { EdgeLinkProps } from "./types";
 
 export const getLinkViaEdge = async ({
@@ -25,16 +25,11 @@ export const getLinkViaEdge = async ({
         // (cause that's how we store it in MySQL)
         punyEncode(decodeURIComponent(key));
 
-  const { rows } =
-    (await conn.execute("SELECT * FROM Link WHERE domain = ? AND `key` = ?", [
-      domain,
-      keyToQuery,
-    ])) || {};
+  const linkData = await prismaEdge.link.findFirst({
+    where: { domain, key: keyToQuery },
+  });
 
-  const link =
-    rows && Array.isArray(rows) && rows.length > 0
-      ? (rows[0] as EdgeLinkProps)
-      : null;
+  const link = linkData ? (linkData as unknown as EdgeLinkProps) : null;
 
   return link
     ? { ...link, key: decodeKeyIfCaseSensitive({ domain, key }) }

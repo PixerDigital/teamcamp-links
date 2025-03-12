@@ -14,8 +14,8 @@ model Partner {
   name              String
   email             String?       @unique
   image             String?
-  bio               String?       @db.LongText
-  description       String?       @db.LongText
+  bio               String?
+  description       String?
   country           String?
   status            PartnerStatus @default(default)
   stripeConnectId   String?       @unique
