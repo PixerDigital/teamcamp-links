@@ -15,9 +15,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
-    "@planetscale/database": "^1.18.0",
     "@prisma/adapter-neon": "5.18.0",
-    "@prisma/adapter-planetscale": "^5.18.0",
     "@prisma/client": "5.18.0",
     "ws": "^8.18.1"
   },
