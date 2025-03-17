@@ -59,11 +59,12 @@ const oldAnalyticsEndpoints = z
 
 // For backwards compatibility
 export const analyticsPathParamsSchema = z.object({
-  eventType: analyticsEvents
-    .removeDefault()
-    .or(oldAnalyticsEndpoints)
+  eventType: z
+    .enum(["clicks", "sales", "leads", "composite"])
     .optional(),
-  endpoint: oldAnalyticsEndpoints.optional(),
+  endpoint: z
+    .enum(["clicks", "sales", "leads", "composite", "count"])
+    .optional(),
 });
 
 // Query schema for /api/analytics endpoint
