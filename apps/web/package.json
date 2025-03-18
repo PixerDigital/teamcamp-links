@@ -121,9 +121,9 @@
     "use-debounce": "^10.0.4",
     "uuid": "^11.0.3",
     "vaul": "^1.1.2",
-    "zod": "^3.22.4",
-    "zod-error": "^1.5.0",
-    "zod-openapi": "^2.19.0"
+    "zod": "3.22.4",
+    "zod-error": "1.5.0",
+    "zod-openapi": "2.19.0"
   },
   "devDependencies": {
     "@types/he": "^1.2.3",
